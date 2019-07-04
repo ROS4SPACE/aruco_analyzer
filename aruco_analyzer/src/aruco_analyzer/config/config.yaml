@@ -17,20 +17,20 @@ board_config:
   #   marker_length: 0.1
   #   separation: 0.0017
   #   first_marker: 0
-  - type: 'grid'
-    dictionary: 'DICT_6X6_250'
-    x: 4
-    y: 4
-    marker_length: 0.0233
-    separation: 0.0017
-    first_marker: 0
-  - type: 'grid'
-    dictionary: 'DICT_6X6_250'
-    x: 4
-    y: 4
-    marker_length: 0.0233
-    separation: 0.0017
-    first_marker: 16
+  # - type: 'grid'
+  #   dictionary: 'DICT_6X6_250'
+  #   x: 4
+  #   y: 4
+  #   marker_length: 0.0233
+  #   separation: 0.0017
+  #   first_marker: 0
+  # - type: 'grid'
+  #   dictionary: 'DICT_6X6_250'
+  #   x: 4
+  #   y: 4
+  #   marker_length: 0.0233
+  #   separation: 0.0017
+  #   first_marker: 16
   
 
 space_fixed_ids: 
@@ -48,5 +48,5 @@ draw_detected_markers: True
 draw_axis: True
 
 cameras:
-  - C920
+  - PiCam
   # - C922
