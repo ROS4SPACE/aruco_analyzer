@@ -1,0 +1,4 @@
+<launch>
+	<include file="$(find aruco_analyzer)/launch/aruco_analyzer_node.launch"/>
+	<include file="$(find aruco_analyzer)/launch/bringup_C920.launch"/>
+</launch>
