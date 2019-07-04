@@ -2,7 +2,7 @@
 	<arg name="path_camera_parameters" default="$(env HOME)/space_rover/srcameras/calibrationdata/"/>
 	<arg name="remapping_disabled" default="false"/>
 	<arg name="cameras_prefix" default="cameras"/>
-	<arg name="camera_name" default="C920"/>
+	<arg name="camera_name" default="PiCam"/>
 	<arg name="camera_ns" default="/$(arg cameras_prefix)/$(arg camera_name)"/>
 
 	<node name="$(arg camera_name)" pkg="usb_cam" type="usb_cam_node" output="screen">
