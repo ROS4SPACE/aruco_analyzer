@@ -49,4 +49,3 @@ draw_axis: True
 
 cameras:
   - PiCam
-  # - C922

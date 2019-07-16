@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import sys
 import os
 import numpy as np
 from yaml import load, dump
@@ -18,6 +19,8 @@ class Camera (object):
             calibration_location = kwargs['calibration_location']
         else:
             calibration_location = os.path.join(os.path.expanduser("~"), 'space_rover', 'srcameras', 'calibrationdata', self.name+'.yaml')
+            if not os.path.exists(calibration_location):
+                calibration_location = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), '..', 'config', self.name+'.yaml')
         self._calibration_file = load(open(calibration_location), Loader=Loader)
         self._camera_matrix = self.read_camera_matrix(self._calibration_file)
         self._dist_coefficients = self.read_distortion_coefficients(self._calibration_file)
