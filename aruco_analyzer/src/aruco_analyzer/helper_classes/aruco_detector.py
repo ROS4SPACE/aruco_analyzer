@@ -108,7 +108,7 @@ class ArucoDetector(object):
             # no marker detected
             return None
 
-        rvecs, tvecs = cv2.aruco.estimatePoseSingleMarkers(
+        rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(
             corners, self.marker_config.marker_length, camera_image.camera.camera_matrix, camera_image.camera.distortion_coefficients
         )
 
@@ -125,10 +125,10 @@ class ArucoDetector(object):
                     camera_image.camera.distortion_coefficients, rvec, tvec, self.marker_config.marker_length/2)
 
             if self.config.print_in_image:
-                dist = np.linalg.norm(tvec[0])
+                dist = np.linalg.norm(tvec)
 
-                strg = 'ID: {} Distance: {:.3f} m'.format(id, dist)
-                strg2 = 'x: {:.3f} y: {:.3f} z: {:.3f}'.format(*tvec)
+                strg = 'ID: {} Distance: {:.3f} m'.format(id, dist*100)
+                strg2 = 'x: {:.3f} y: {:.3f} z: {:.3f}'.format(*tvec*100)
                 strg3 = 'r: {:.3f} p: {:.3f} y: {:.3f}'.format(*map(math.degrees, rvec))
 
                 text_place = base_offset + id*(30*3+20)
@@ -141,8 +141,7 @@ class ArucoDetector(object):
                 text_place += 30
                 cv2.putText(camera_image.image, strg3, (0, text_place), self.font,
                             1, (0, 0, 255), 2, cv2.LINE_AA)
-                text_place += 30
-        
+                text_place += 30        
         
         output = DetectionOutput()
         output.pack(camera_image, ids, rvecs, tvecs, ['M']*len(ids))

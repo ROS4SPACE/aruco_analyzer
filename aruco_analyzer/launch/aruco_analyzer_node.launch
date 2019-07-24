@@ -1,5 +1,5 @@
 <launch>
-	<node name="aruco_analyzer" pkg="aruco_analyzer" type="aruco_detection_node" output="screen" respawn="false"> 
+	<node name="aruco_analyzer" pkg="aruco_analyzer" type="aruco_detection_node" output="screen" respawn="false" clear_params="true"> 
 		<rosparam command="load" file="$(find aruco_analyzer)/config/config.yaml" param="config"/>
 	</node>
 </launch>
