@@ -31,6 +31,9 @@ class ArucoDetector(object):
 
         self.font = cv2.FONT_HERSHEY_SIMPLEX
 
+        # offset used to print debug information into image
+        self.board_offset = 0
+
     def detect_markers(self, camera_image, dictionary):
         # check if the markers of the dictionary were already detected in this image
         try:
@@ -46,7 +49,7 @@ class ArucoDetector(object):
 
     def detect_board(self, camera_image, board):
         corners, ids = self.detect_markers(camera_image, board.dictionary)
-        text_place = 30
+        text_place = 30 + self.board_offset
 
         if ids is None:
             # no marker detected
@@ -63,7 +66,6 @@ class ArucoDetector(object):
 
         self.detected_markers[board.dictionary] = filtered_markers
 
-        # cv2.aruco.drawDetectedMarkers(camera_image.image, corners, ids)
         if self.config.draw_detected_markers:
             cv2.aruco.drawDetectedMarkers(camera_image.image, corners)
 
@@ -95,6 +97,8 @@ class ArucoDetector(object):
             text_place += 30
             cv2.putText(camera_image.image, strg3, (0, text_place), self.font,
                         1, (0, 0, 255), 2, cv2.LINE_AA)
+
+        self.board_offset += 90
         
         output = DetectionOutput()
         output.pack(camera_image, np.array([board.first_marker]), [rvec], [tvec], [board.type])
@@ -148,6 +152,8 @@ class ArucoDetector(object):
         return output
 
     def detect(self, camera_image):
+        self.board_offset = 0
+
         output = DetectionOutput()
 
         if self.marker_config is not None:
