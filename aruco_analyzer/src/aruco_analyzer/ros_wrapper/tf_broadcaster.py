@@ -15,7 +15,8 @@ class TFBroadCaster(object):
     def broadcast(self, target):
         if not rospy.is_shutdown():
             self.logger.info('pose estimation delay: {}'.format(rospy.Time.now().to_time() - target.camera_image.timestamp))
-            self.broadcaster.sendTransform(self.build_tf(target))
+            if (target.marker_type == 'C'):
+                self.broadcaster.sendTransform(self.build_tf(target))
 
     def build_tf(self, detection_object):
         t = geometry_msgs.msg.TransformStamped()
@@ -24,7 +25,8 @@ class TFBroadCaster(object):
 
         t.header.stamp = rospy.Time.now()
         t.header.frame_id = detection_object.camera_image.camera.name
-        t.child_frame_id = detection_object.get_unique_ar_id_string()
+        # t.child_frame_id = detection_object.get_unique_ar_id_string()
+        t.child_frame_id = 'Cube{:03d}'.format(detection_object.ar_id / 16 + 1)
         t.transform.translation.x = x
         t.transform.translation.y = y
         t.transform.translation.z = z
