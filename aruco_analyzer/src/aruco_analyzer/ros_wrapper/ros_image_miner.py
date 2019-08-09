@@ -10,11 +10,12 @@ class ROSImageMiner(object):
         self.image_distributor = image_distributor
         self.cameras = cameras
         self.bridge = CvBridge()
-        self.image_topic = rospy.get_param('/aruco_analyzer/image_topic', '/image_raw')
+        self.transport_hint = rospy.get_param('/aruco_analyzer/transport_hint', '/image_raw')
+        self.camera_ns = rospy.get_param('/aruco_analyzer/camera_ns', '/cameras')
 
         self.subscribers = {}
         for camera_name in self.cameras.keys():
-            topic_name = '/cameras/'+camera_name + self.image_topic
+            topic_name = self.camera_ns + '/'+ camera_name + self.transport_hint
             subscriber = rospy.Subscriber(
                 topic_name, Image, callback=self.image_callback)
             self.subscribers[camera_name] = subscriber
@@ -25,5 +26,12 @@ class ROSImageMiner(object):
         except CvBridgeError as e:
             print(e)
 
-        camera_image_container = CameraImage(self.cameras[data.header.frame_id], cv_image, data.header.stamp.to_time())
+        for camera in self.cameras.values():
+            if data.header.frame_id == camera.frame_id:
+                camera_name = camera.name
+                break
+        if not 'camera_name' in locals():
+            rospy.logerr('Error while processing image callback. Found frame_id "{}" but no corresponding camera. Try setting "frame_id" in config file.'.format(data.header.frame_id))
+            return
+        camera_image_container = CameraImage(self.cameras[camera_name], cv_image, data.header.stamp.to_time())
         self.image_distributor.put_image(camera_image_container)

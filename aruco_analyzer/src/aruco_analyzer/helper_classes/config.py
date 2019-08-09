@@ -68,8 +68,12 @@ class Config(Singleton):
             elif key == 'marker_config':
                 self._marker_config = MarkerConfig(value['dictionary'], value['marker_length'])
             elif key == 'cameras':
-                for camera_name in value:
-                    self._cameras[camera_name] = Camera(camera_name)
+                for camera in value:
+                    if type(camera) is str:
+                        self._cameras[camera] = Camera(camera)
+                    else:
+                        camera_name = list(camera.keys())[0]
+                        self._cameras[camera_name] = Camera(camera_name, **camera[camera_name])
             else:
                 setattr(self, '_'+key, value)
         

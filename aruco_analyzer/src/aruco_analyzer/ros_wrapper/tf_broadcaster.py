@@ -23,7 +23,7 @@ class TFBroadCaster(object):
         [qw, qx, qy, qz] = detection_object.quaternion
 
         t.header.stamp = rospy.Time.now()
-        t.header.frame_id = detection_object.camera_image.camera.name
+        t.header.frame_id = detection_object.camera_image.camera.frame_id
         t.child_frame_id = detection_object.get_unique_ar_id_string()
         t.transform.translation.x = x
         t.transform.translation.y = y

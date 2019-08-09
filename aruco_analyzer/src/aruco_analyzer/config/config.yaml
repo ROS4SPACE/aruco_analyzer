@@ -43,9 +43,13 @@ max_detection_images: 10
 
 number_of_workers: 2
 
-print_in_image: False
+print_in_image: True
 draw_detected_markers: True
 draw_axis: True
 
 cameras:
   - PiCam
+  # - C920
+  # - camFront:
+  #     frame_id: camFront_color_optical_frame
+
