@@ -8,10 +8,7 @@
 
   <license>GPLv3</license>
 
-  <!-- Url tags are optional, but multiple are allowed, one per tag -->
-  <!-- Optional attribute type can be: website, bugtracker, or repository -->
-  <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/hammer_tests</url> -->
+  <url type="website">https://github.com/ROS4SPACE/aruco_analyzer</url>
 
   <author email="lennart.kryza@tu-berlin.de">Lennart Kryza</author>
   <author email="michael.a.roessler@campus.tu-berlin.de">Michael Roessler</author>
@@ -27,9 +24,4 @@
   <build_depend>message_generation</build_depend>
   <exec_depend>message_runtime</exec_depend>
 
-  <!-- The export tag contains other, unspecified, tags -->
-  <export>
-    <!-- Other tools can request additional information be placed here -->
-
-  </export>
 </package>
