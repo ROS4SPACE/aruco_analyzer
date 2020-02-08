@@ -1,0 +1,66 @@
+from .board_config import BoardConfig, transform_vector
+from operator import add
+import cv2
+import numpy as np
+
+class CubeBoardConfig(BoardConfig):
+
+    def __init__(self, dictionary, marker_length, border, marker_per_side, first_marker, ):
+        super(CubeBoardConfig, self).__init__(dictionary, marker_length)
+        self._type = 'C'
+        self._border = border
+        self._marker_per_side = marker_per_side
+        self._first_marker = first_marker
+
+        self._ids = [i for i in range(self._first_marker, self._first_marker+4*self._marker_per_side**2)]
+
+        corners = []
+        front_side_corners = []
+
+        for j in range(self._marker_per_side, 0, -1):
+            for i in range(1, self._marker_per_side+1):
+                marker_corners = []
+                marker_corners.append([0, (i-1) * self._marker_length + i*self._border, j*self._marker_length + j*self._border])
+                marker_corners.append([0, i * self._marker_length + i*self._border, j*self._marker_length + j*self._border])
+                marker_corners.append([0, i * self._marker_length + i*self._border, (j-1)*self._marker_length + j*self._border])
+                marker_corners.append([0, (i-1) * self._marker_length + i*self._border, (j-1)*self._marker_length + j*self._border])
+                front_side_corners.append(marker_corners)
+
+         # transform coordinates so that centre of cube is (0,0,0)
+        cube_length = self._marker_per_side*self._marker_length + (self._marker_per_side+1)*self._border
+        transform = [cube_length/2, -cube_length/2, -cube_length/2]
+        transformed_frontside_corners = []
+        for marker_corners in front_side_corners:
+            transformed_frontside_corners.append([list(map(add, transform, marker_corner)) for marker_corner in marker_corners])
+
+        corners.extend(transformed_frontside_corners)
+
+        # rotate coordinates for each cube side
+        for marker_corners in transformed_frontside_corners:
+            corners.append([transform_vector(marker_corner, (0,0,1), 90) for marker_corner in marker_corners])
+        for marker_corners in transformed_frontside_corners:
+            corners.append([transform_vector(marker_corner, (0,0,1), 180) for marker_corner in marker_corners])
+        for marker_corners in transformed_frontside_corners:
+            corners.append([transform_vector(marker_corner, (0,0,1), 270) for marker_corner in marker_corners])
+
+        # transform into correct data format
+        points = np.array([[np.array(marker_corners, 'float32')] for marker_corners in corners])
+        ids = np.array([[id] for id in self._ids])
+        
+        self._board = cv2.aruco.Board_create(points, self._dictionary, ids)
+
+    @property
+    def first_marker(self):
+        return self._first_marker
+
+    @property
+    def border(self):
+        return self._border
+    
+    @property
+    def ids(self):
+        return self._ids
+
+    @property
+    def id(self):
+        return '{}{:03d}'.format(self.type, self._first_marker)

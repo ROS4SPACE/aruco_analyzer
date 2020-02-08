@@ -15,7 +15,6 @@ from .config import Config
 class Analyzer(object):
 
     logger = logging.getLogger(__name__)
-    logger.setLevel('WARN')
 
     def __init__(self, image_distributor):
         self.image_distributor = image_distributor
@@ -48,7 +47,7 @@ class Analyzer(object):
 
             if identifier not in self.marker_detections:
                 # create list
-                self.logger.info('create list for {}'.format(identifier))
+                self.logger.info('First detection of {}'.format(identifier))
                 self.marker_detections[identifier] = {}
 
             camera_name = single.camera_image.camera.name
@@ -93,7 +92,7 @@ class Analyzer(object):
 
             if single_detection_list:
                 if self.config.average_estimations:
-                    self.logger.info('averaging over {} estimations for {}'.format(len(single_detection_list), single_detection_list[-1].get_unique_ar_id_string()))
+                    self.logger.debug('Averaging over {} estimations for {}'.format(len(single_detection_list), single_detection_list[-1].get_unique_ar_id_string()))
 
                     analyzed_target = SingleOutput()
                     [average_pose, average_quat, last_candidate] = self.average_result(single_detection_list)
