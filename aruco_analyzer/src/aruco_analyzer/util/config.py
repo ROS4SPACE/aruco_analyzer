@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-import logging
 import itertools
 from .camera import Camera
 from .board_configs import *
+
 
 class Singleton(object):
     def __new__(cls, *args, **kwds):
@@ -16,6 +16,7 @@ class Singleton(object):
     def init(self, *args, **kwds):
         pass
 
+
 class Config(Singleton):
 
     _max_detection_images = 10
@@ -23,7 +24,7 @@ class Config(Singleton):
     _max_detection_age = 1
     _number_of_workers = 1
     _space_fixed_ids = []
-    
+
     _marker_config = None
     _board_config = []
 
@@ -35,8 +36,6 @@ class Config(Singleton):
 
     _average_estimations = False
 
-    logger = logging.getLogger('aruco_analyzer.config')
-
     def read_from_dictionary(self, config):
         for key, value in config.items():
             if key == 'board_config':
@@ -45,27 +44,30 @@ class Config(Singleton):
                         try:
                             if board['type'] == 'cube':
                                 self._board_config.append(
-                                    CubeBoardConfig(board['dictionary'], board['marker_length'], board['border'], board['marker_per_side'], board['first_marker'])
-                                )
-                            elif board['type'] == 'satellite':
-                                self._board_config.append(
-                                    SatelliteBoardConfig(board['dictionary'], board['marker_length'], board['border'], board['marker_per_side'], board['first_marker'])
+                                    CubeBoardConfig(
+                                        board['dictionary'], board['marker_length'], board['border'], board['marker_per_side'], board['first_marker']
+                                    )
                                 )
                             elif board['type'] == 'grid':
                                 self._board_config.append(
-                                    GridBoardConfig(board['dictionary'], board['marker_length'], board['x'], board['y'], 
-                                        board['separation'], board['first_marker'])
+                                    GridBoardConfig(
+                                        board['dictionary'], board['marker_length'], board['x'], board['y'], board['separation'], board['first_marker']
+                                    )
+                                )
+                            elif board['type'] == 'satellite':
+                                self._board_config.append(
+                                    SatelliteBoardConfig(
+                                        board['dictionary'], board['marker_length'], board['border'], board['marker_per_side'], board['first_marker']
+                                    )
                                 )
                             else:
-                                self.logger.error('Unknown board type \'{}\''.format(board['type']))
-                                exit()
+                                raise ValueError("Unknown board type \'{}\'".format(board['type']))
                         except KeyError as keyError:
                             if keyError.message == 'type':
-                                self.logger.error('Must specify key \'{}\' for board'.format(keyError.message))
+                                raise ValueError("Must specify key \'{}\' for board".format(keyError.message))
                             else:
-                                self.logger.error('Must specify key \'{}\' for board of type \'{}\''.format(keyError.message, board['type']))
-                            exit()
-                    
+                                raise ValueError("Must specify key \'{}\' for board of type \'{}\'".format(keyError.message, board['type']))
+
             elif key == 'marker_config':
                 if value is not None:
                     self._marker_config = MarkerConfig(value['dictionary'], value['marker_length'])
@@ -77,24 +79,23 @@ class Config(Singleton):
                         camera_name = list(camera.keys())[0]
                         self._cameras[camera_name] = Camera(camera_name, **camera[camera_name])
             else:
-                setattr(self, '_'+key, value)
-        
+                setattr(self, '_' + key, value)
+
         self.check_valid()
 
     def check_valid(self):
         if self._marker_config is not None:
             for board_config in self._board_config:
                 if self._marker_config.dictionary_name == board_config.dictionary_name:
-                    self.logger.error('Dictionaries for single markers and boards cannot be the same!')
-                    exit()
+                    raise ValueError("Dictionaries for single markers and boards cannot be the same!")
 
         for a, b in itertools.combinations(self._board_config, 2):
             if a.dictionary_name == b.dictionary_name and not set(a.ids).isdisjoint(b.ids):
-                self.logger.error('Markers of two boards overlap!')
-                self.logger.error('Type: {}, Dictionary: {}, first_marker: {}'.format(a.type, a.dictionary_name, a.first_marker))
-                self.logger.error('Type: {}, Dictionary: {}, first_marker: {}'.format(b.type, b.dictionary_name, b.first_marker))
-                exit()
-
+                raise ValueError(
+                    "Markers of two boards overlap!" + '\n'
+                    + "Type: {}, Dictionary: {}, first_marker: {}".format(b.type, b.dictionary_name, b.first_marker) + '\n'
+                    + "Type: {}, Dictionary: {}, first_marker: {}".format(b.type, b.dictionary_name, b.first_marker)
+                )
 
     @property
     def max_detection_images(self):

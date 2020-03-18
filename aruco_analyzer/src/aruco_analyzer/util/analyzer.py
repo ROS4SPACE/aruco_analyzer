@@ -1,22 +1,23 @@
 #!/usr/bin/env python
 import logging
 import time
-try: 
+try:
     from queue import Queue
 except ImportError:
     from Queue import Queue
-from threading import Thread, Lock, Event
+from threading import Thread, Event
 import numpy as np
 from pyquaternion import Quaternion
 from .detection_output import SingleOutput
 from .quaternion_helper import averageQuaternions
 from .config import Config
 
+
 class Analyzer(object):
 
-    logger = logging.getLogger(__name__)
-
     def __init__(self, image_distributor):
+        self.logger = logging.getLogger(__name__)
+
         self.image_distributor = image_distributor
         self.broadcaster = None
 
@@ -59,7 +60,9 @@ class Analyzer(object):
             # self.lock.acquire()
             single_detection_list.append(single)
             detection_available.set()
-            if len(single_detection_list) > self.max_list:
+
+            # remove oldest, i.e. first detection if list gets too big, do not remove when max_list is set to 0
+            if self.max_list != 0 and len(single_detection_list) > self.max_list:
                 single_detection_list.pop(0)
             # self.lock.release()
 
@@ -88,7 +91,7 @@ class Analyzer(object):
                 detection_available.clear()
 
             # removes detections older than max_age
-            single_detection_list[:] = [x for x in single_detection_list if not time.time() - x.timestamp > self.max_age]
+            single_detection_list[:] = [x for x in single_detection_list if self.max_age == 0 or not time.time() - x.timestamp > self.max_age]
 
             if single_detection_list:
                 if self.config.average_estimations:
@@ -104,10 +107,12 @@ class Analyzer(object):
                     analyzed_target.timestamp = last_candidate.timestamp
                     analyzed_target.marker_type = last_candidate.marker_type
                 else:
+                    self.logger.debug('Not averaging.')
                     analyzed_target = single_detection_list[-1]
 
                 self.analyzed_targets.put(analyzed_target)
                 self.analyzed_target_available.set()
+                self.logger.debug('set analyzed_target_available')
 
             else:
                 suspend = True
@@ -119,7 +124,7 @@ class Analyzer(object):
 
         average_quat = averageQuaternions(np.concatenate([item.quaternion for item in single_detection_list], axis=0).reshape(-1, 4))
         average_quat = Quaternion(average_quat).normalised.elements
-        return [average_pose, average_quat, single_detection_list[-1]]            
+        return [average_pose, average_quat, single_detection_list[-1]]
 
     def set_broadcaster(self, broadcaster):
         self.broadcaster = broadcaster

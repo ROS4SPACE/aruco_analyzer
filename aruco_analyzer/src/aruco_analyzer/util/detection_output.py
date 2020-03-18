@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 import numpy as np
-import math
 import time
-import pyquaternion
 from .quaternion_helper import *
+
 
 class DetectionOutput (object):
     """
@@ -46,6 +45,7 @@ class DetectionOutput (object):
             self.positions = np.concatenate((self.positions, detection.positions))
             self._marker_types = np.concatenate((self._marker_types, detection._marker_types))
 
+
 class SingleOutput (object):
     def __init__(self):
         self._ar_id = None
@@ -77,7 +77,7 @@ class SingleOutput (object):
     @quaternion.setter
     def quaternion(self, value):
         self._quaternion = np.copy(value)
-        
+
     @property
     def euler(self):
         return quaternionToEuler(self._quaternion)

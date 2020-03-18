@@ -1,0 +1,33 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "install aruco_analyzer",
+            "type": "shell",
+            "command": "python setup.py build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceRoot}/aruco_analyzer"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "install aruco_analyzer develop",
+            "type": "shell",
+            "command": "python setup.py develop",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceRoot}/aruco_analyzer"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

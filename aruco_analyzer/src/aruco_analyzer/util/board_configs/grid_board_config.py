@@ -1,6 +1,7 @@
 from .board_config import BoardConfig
 import cv2
 
+
 class GridBoardConfig(BoardConfig):
 
     def __init__(self, dictionary, marker_length, x, y, marker_separation, first_marker):
@@ -11,7 +12,7 @@ class GridBoardConfig(BoardConfig):
         self._marker_separation = marker_separation
         self._first_marker = first_marker
         self._board = cv2.aruco.GridBoard_create(self._x, self._y, self._marker_length, self._marker_separation, self._dictionary, self._first_marker)
-        
+
     @property
     def x(self):
         return self._x
@@ -23,7 +24,7 @@ class GridBoardConfig(BoardConfig):
     @property
     def first_marker(self):
         return self._first_marker
-    
+
     @property
     def ids(self):
         return range(self._first_marker, self._first_marker + self._x*self._y)

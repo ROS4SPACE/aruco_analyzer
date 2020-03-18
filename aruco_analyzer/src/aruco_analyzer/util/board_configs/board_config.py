@@ -3,6 +3,7 @@ from abc import abstractmethod
 from pyquaternion import Quaternion
 import numpy as np
 
+
 class BoardConfig(MarkerConfig):
 
     @abstractmethod
@@ -16,6 +17,7 @@ class BoardConfig(MarkerConfig):
     @property
     def type(self):
         return self._type
+
 
 def transform_vector(vec, axis, angle):
     q = Quaternion(axis=axis, degrees=angle)

@@ -7,6 +7,7 @@ from ros_image_miner import ROSImageMiner
 from cpumem import CpuMemMonitor
 from tf_broadcaster import TFBroadCaster
 
+
 class ARMarkerDetectorWrapper (object):
     def __init__(self):
         rospy.loginfo("Instantiating {}".format(type(self).__name__))
@@ -15,7 +16,7 @@ class ARMarkerDetectorWrapper (object):
         self.system_monitor_thread.daemon = True
         self.system_monitor_thread.start()
 
-        config = rospy.get_param('aruco_analyzer/config')        
+        config = rospy.get_param('aruco_analyzer/config')
         self.ar_marker_detector = ARMarkerDetector(config)
 
         self.ar_marker_detector.set_image_miner(ROSImageMiner)
@@ -30,4 +31,3 @@ class ARMarkerDetectorWrapper (object):
         self.publisher_thread.start()
 
         self.ar_marker_detector.set_detection_image_publisher(self.detection_image_publisher)
-        

@@ -4,12 +4,12 @@ import rospy
 import geometry_msgs
 import tf2_ros
 
+
 class TFBroadCaster(object):
 
-    logger = logging.getLogger(__name__)
-    logger.setLevel('DEBUG')
-
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel('DEBUG')
         self.broadcaster = tf2_ros.TransformBroadcaster()
 
     def broadcast(self, target):

@@ -2,11 +2,12 @@
 import rospy
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
-from aruco_analyzer.helper_classes.camera import Camera
-from aruco_analyzer.helper_classes.camera_image import CameraImage
+from aruco_analyzer.util import Camera
+from aruco_analyzer.util import CameraImage
+
 
 class ROSImageMiner(object):
-    def __init__(self, image_distributor, cameras):
+    def __init__(self, image_distributor, cameras):        
         self.image_distributor = image_distributor
         self.cameras = cameras
         self.bridge = CvBridge()
@@ -30,7 +31,7 @@ class ROSImageMiner(object):
             if data.header.frame_id == camera.frame_id:
                 camera_name = camera.name
                 break
-        if not 'camera_name' in locals():
+        if 'camera_name' not in locals():
             rospy.logerr('Error while processing image callback. Found frame_id "{}" but no corresponding camera. Try setting "frame_id" in config file.'.format(data.header.frame_id))
             return
         camera_image_container = CameraImage(self.cameras[camera_name], cv_image, data.header.stamp.to_time())

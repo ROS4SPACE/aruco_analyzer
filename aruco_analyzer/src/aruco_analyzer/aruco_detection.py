@@ -1,32 +1,24 @@
 #!/usr/bin/env python
 import logging
-import sys
 import threading
 import time
-from yaml import load
-try:
-    from yaml import CLoader as Loader
-except ImportError:
-    from yaml import Loader
 
-from .helper_classes.aruco_detector import ArucoDetector
-from .helper_classes.analyzer import Analyzer
-from .helper_classes.image_distributor import ImageDistributor
-from .helper_classes.config import Config
+from .util import ArucoDetector, Analyzer, ImageDistributor, Config
+
 
 class ARMarkerDetector(object):
-    
-    logging.basicConfig()
-    logger = logging.getLogger(__name__)
-    logger.setLevel('DEBUG')
 
     def __init__(self, config):
+        logging.basicConfig()
+        self.logger = logging.getLogger(__name__)
+        self.logger.debug('Start')
+
         self.conf = Config()
         self.conf.read_from_dictionary(config)
         self.image_distributor = ImageDistributor()
 
-    def set_image_miner(self, image_miner):
-        self.image_miner = image_miner(self.image_distributor, self.conf.cameras)
+    def set_image_miner(self, image_miner, *miner_args):
+        self.image_miner = image_miner(self.image_distributor, self.conf.cameras, *miner_args)
 
     def set_detection_image_publisher(self, detection_image_publisher):
         self.image_distributor.register_detection_image_publisher(detection_image_publisher)
@@ -47,6 +39,6 @@ class ARMarkerDetector(object):
         self.analyzer_thread.daemon = True
         self.analyzer_thread.start()
 
-        if not broadcaster is None:
+        if broadcaster is not None:
             self.analyzer.set_broadcaster(broadcaster)
             self.analyzer.start_broadcasting()

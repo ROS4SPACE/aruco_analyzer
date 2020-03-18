@@ -42,6 +42,7 @@ import numpy.matlib as npm
 from pyquaternion import Quaternion
 import cv2
 
+
 def quaternion_distance(q1, q2, u='rad'):
     """
     returns angle between two quaternions
@@ -55,9 +56,11 @@ def quaternion_distance(q1, q2, u='rad'):
     else:
         return diff
 
+
 def quaternionToEuler(quat):
     quat = Quaternion(quat)
     return np.array(quat.yaw_pitch_roll)
+
 
 def rodriguesToQuaternion(rod):
     dst, _ = cv2.Rodrigues(rod)

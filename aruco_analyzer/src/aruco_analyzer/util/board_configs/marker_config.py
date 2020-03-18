@@ -1,5 +1,6 @@
 import cv2
 
+
 class MarkerConfig(object):
 
     def __init__(self, dictionary, marker_length):

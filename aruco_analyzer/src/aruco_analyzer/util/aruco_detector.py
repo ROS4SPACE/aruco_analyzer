@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 import math
 import numpy as np
-import time
 from functools import reduce
 import cv2
-from .camera_image import CameraImage
 from .detection_output import DetectionOutput
 from .config import Config
 
+
 def partition(l, p):
     return reduce(lambda x, y: x[not p(y)].append(y) or x, l, ([], []))
+
 
 class ArucoDetector(object):
     counter = 0
@@ -19,7 +19,7 @@ class ArucoDetector(object):
         self.id = type(self).counter
         type(self).counter += 1
 
-        self.name = 'Aruco Detection Class'
+        self.name = 'ArUco Detection Class'
         self.image_distributor = image_distributor
 
         self.config = Config()
@@ -39,7 +39,7 @@ class ArucoDetector(object):
                 return
             else:
                 corners, ids = zip(*markers)
-        except KeyError as keyError:
+        except KeyError:
             corners, ids, rejected = cv2.aruco.detectMarkers(camera_image.image, dictionary)
 
         return corners, ids
@@ -51,7 +51,7 @@ class ArucoDetector(object):
         if ids is None:
             # no marker detected
             return None
-        
+
         # filter markers which are not part of the board
         markers, filtered_markers = partition(zip(corners, ids), lambda x: x[1][0] in board.ids)
 
@@ -68,10 +68,11 @@ class ArucoDetector(object):
             cv2.aruco.drawDetectedMarkers(camera_image.image, corners)
 
         retval, rvec, tvec = cv2.aruco.estimatePoseBoard(
-            corners, ids, board.board, camera_image.camera.camera_matrix, camera_image.camera.distortion_coefficients
+            corners, ids, board.board, camera_image.camera.camera_matrix, camera_image.camera.distortion_coefficients,
+            None, None
         )
 
-        if retval is 0:
+        if retval == 0:
             return None
 
         rvec = rvec.reshape(-1)
@@ -95,7 +96,7 @@ class ArucoDetector(object):
             text_place += 30
             cv2.putText(camera_image.image, strg3, (0, text_place), self.font,
                         1, (0, 0, 255), 2, cv2.LINE_AA)
-        
+
         output = DetectionOutput()
         output.pack(camera_image, np.array([board.first_marker]), [rvec], [tvec], [board.type])
         return output
@@ -121,8 +122,9 @@ class ArucoDetector(object):
 
         for id, rvec, tvec in zip(ids, rvecs, tvecs):
             if self.config.draw_axis:
-                cv2.aruco.drawAxis(camera_image.image, camera_image.camera.camera_matrix,
-                    camera_image.camera.distortion_coefficients, rvec, tvec, self.marker_config.marker_length/2)
+                cv2.aruco.drawAxis(
+                    camera_image.image, camera_image.camera.camera_matrix,
+                    camera_image.camera.distortion_coefficients, rvec, tvec, self.marker_config.marker_length / 2)
 
             if self.config.print_in_image:
                 dist = np.linalg.norm(tvec)
@@ -141,8 +143,8 @@ class ArucoDetector(object):
                 text_place += 30
                 cv2.putText(camera_image.image, strg3, (0, text_place), self.font,
                             1, (0, 0, 255), 2, cv2.LINE_AA)
-                text_place += 30        
-        
+                text_place += 30
+
         output = DetectionOutput()
         output.pack(camera_image, ids, rvecs, tvecs, ['M']*len(ids))
         return output
