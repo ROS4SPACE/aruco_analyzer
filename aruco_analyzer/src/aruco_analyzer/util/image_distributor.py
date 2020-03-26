@@ -33,16 +33,10 @@ class ImageDistributor(object):
         self._detection_available = Event()
         self._detection_image_publisher = None
 
-    def register_detection_image_publisher(self, detection_image_publisher):
+    def set_detection_image_listener(self, detection_image_publisher):
         self._detection_image_publisher = detection_image_publisher
 
-    def get_detection(self):
-        self._detection_available.wait()
-        detection = self._detection_queue.get()
-        if self._detection_queue.empty():
-            self._detection_available.clear()
-        return detection
-
+    # puts image into image queue
     def put_image(self, camera_image_container):
         self._image_available.acquire()
         if self._image_queue.full():
@@ -55,19 +49,18 @@ class ImageDistributor(object):
         self.logger.debug('notify')
         self._image_available.release()
 
-    # returns image from image_queue and stores ID of requesting aruco_detector
+    # returns image from image queue and stores ID of requesting aruco detector
     def get_image(self, id):
         self._image_available.acquire()
         while self._image_queue.empty():
             self.logger.debug('wait {}'.format(id))
             self._image_available.wait()
             self.logger.debug('resume {}'.format(id))
-        image = self._image_queue.get()
         self._order_list.append(id)
         self._image_available.release()
-        return image
+        return self._image_queue.get()
 
-    # puts detection into the queues
+    # puts detection into detection queue
     def put_detection(self, id, detection, detection_image):
         self.logger.debug('enter put_detection {}'.format(id))
         try:
@@ -99,6 +92,14 @@ class ImageDistributor(object):
             self.logger.debug('release lock')
             self.logger.debug('return put_detection {}'.format(id))
 
+    # gets detection from detection queue
+    def get_detection(self):
+        self._detection_available.wait()
+        detection = self._detection_queue.get()
+        if self._detection_queue.empty():
+            self._detection_available.clear()
+        return detection
+
     def _put_detection(self, detection, detection_image):
         if detection is not None:
             if self._detection_queue.full():
@@ -112,6 +113,8 @@ class ImageDistributor(object):
             for _ in range(self._detection_images_qdic[detection_image.camera.name].qsize()-1):
                 self._detection_images_qdic[detection_image.camera.name].get()
         self._detection_images_qdic[detection_image.camera.name].put(detection_image.image)
+
+        # notify detection image listeners
         if self._detection_image_publisher is not None:
             self._detection_image_publisher.notify_detection_image_available()
 

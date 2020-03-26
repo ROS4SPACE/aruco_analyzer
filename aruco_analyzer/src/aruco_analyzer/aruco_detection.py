@@ -20,10 +20,10 @@ class ARMarkerDetector(object):
     def set_image_miner(self, image_miner, *miner_args):
         self.image_miner = image_miner(self.image_distributor, self.conf.cameras, *miner_args)
 
-    def set_detection_image_publisher(self, detection_image_publisher):
-        self.image_distributor.register_detection_image_publisher(detection_image_publisher)
+    def set_detection_image_listener(self, detection_image_listener):
+        self.image_distributor.set_detection_image_listener(detection_image_listener)
 
-    def launch_detection_workers(self, detection_image_publisher=None):
+    def launch_detection_workers(self, detection_image_listener=None):
         self.worker = []
         self.worker_threads = []
         for worker in range(0, self.conf.number_of_workers):

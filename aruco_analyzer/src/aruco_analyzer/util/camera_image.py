@@ -3,9 +3,18 @@
 
 class CameraImage(object):
     def __init__(self, camera, image, timestamp):
-        self.camera = camera
-        self.image = image
-        self.timestamp = timestamp
+        self._camera = camera
+        self._image = image
+        self._timestamp = timestamp
 
-    def __del__(self):
-        self.__delattr__('image')
+    @property
+    def camera(self):
+        return self._camera
+
+    @property
+    def image(self):
+        return self._image
+
+    @property
+    def timestamp(self):
+        return self._timestamp

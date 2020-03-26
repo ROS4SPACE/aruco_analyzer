@@ -97,9 +97,9 @@ class ArucoDetector(object):
             cv2.putText(camera_image.image, strg3, (0, text_place), self.font,
                         1, (0, 0, 255), 2, cv2.LINE_AA)
 
-        output = DetectionOutput()
-        output.pack(camera_image, np.array([board.first_marker]), [rvec], [tvec], [board.type])
-        return output
+        detection = DetectionOutput()
+        detection.pack(camera_image, np.array([board.first_marker]), [rvec], [tvec], [board.type])
+        return detection
 
     def detect_single_markers(self, camera_image):
         corners, ids, rejected = cv2.aruco.detectMarkers(camera_image.image, self.marker_config.dictionary)
@@ -145,21 +145,21 @@ class ArucoDetector(object):
                             1, (0, 0, 255), 2, cv2.LINE_AA)
                 text_place += 30
 
-        output = DetectionOutput()
-        output.pack(camera_image, ids, rvecs, tvecs, ['M']*len(ids))
-        return output
+        detection = DetectionOutput()
+        detection.pack(camera_image, ids, rvecs, tvecs, ['M']*len(ids))
+        return detection
 
     def detect(self, camera_image):
-        output = DetectionOutput()
-        output.pack_dummy(camera_image)
+        detection = DetectionOutput()
+        detection.pack_dummy(camera_image)
 
         if self.marker_config is not None:
-            output.append(self.detect_single_markers(camera_image))
+            detection.append(self.detect_single_markers(camera_image))
 
         for board_config in self.board_config:
-            output.append(self.detect_board(camera_image, board_config))
+            detection.append(self.detect_board(camera_image, board_config))
 
-        return output
+        return detection
 
     def run_detect(self):
         while True:
