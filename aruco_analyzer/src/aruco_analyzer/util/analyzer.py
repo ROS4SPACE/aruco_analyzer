@@ -44,7 +44,7 @@ class Analyzer(object):
             single = SingleOutput()
             single.pack_from_parent(detection_output, i)
 
-            identifier = single.get_unique_ar_id_string()
+            identifier = single.unique_ar_id
 
             if identifier not in self.marker_detections:
                 # create list
@@ -95,7 +95,7 @@ class Analyzer(object):
 
             if single_detection_list:
                 if self.config.average_estimations:
-                    self.logger.debug('Averaging over {} estimations for {}'.format(len(single_detection_list), single_detection_list[-1].get_unique_ar_id_string()))
+                    self.logger.debug('Averaging over {} estimations for {}'.format(len(single_detection_list), single_detection_list[-1].unique_ar_id))
 
                     analyzed_target = SingleOutput()
                     [average_pose, average_quat, last_candidate] = self.average_result(single_detection_list)
@@ -108,7 +108,7 @@ class Analyzer(object):
                     analyzed_target.marker_type = last_candidate.marker_type
                 else:
                     self.logger.debug('Not averaging.')
-                    analyzed_target = single_detection_list[-1]
+                    analyzed_target = single_detection_list.pop(-1)
 
                 self.analyzed_targets.put(analyzed_target)
                 self.analyzed_target_available.set()

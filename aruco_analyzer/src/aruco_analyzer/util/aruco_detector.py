@@ -151,6 +151,7 @@ class ArucoDetector(object):
 
     def detect(self, camera_image):
         output = DetectionOutput()
+        output.pack_dummy(camera_image)
 
         if self.marker_config is not None:
             output.append(self.detect_single_markers(camera_image))

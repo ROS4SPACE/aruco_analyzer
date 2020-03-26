@@ -24,7 +24,7 @@ class TFBroadCaster(object):
 
         t.header.stamp = rospy.Time.now()
         t.header.frame_id = detection_object.camera_image.camera.frame_id
-        t.child_frame_id = detection_object.get_unique_ar_id_string()
+        t.child_frame_id = detection_object.unique_ar_id
         t.transform.translation.x = x
         t.transform.translation.y = y
         t.transform.translation.z = z
