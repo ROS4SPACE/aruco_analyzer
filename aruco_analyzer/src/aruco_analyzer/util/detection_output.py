@@ -19,10 +19,10 @@ class DetectionOutput (object):
 
     def pack_dummy(self, camera_image):
         self._camera_image = camera_image
-        self.ar_ids = [000]
+        self.ar_ids = np.array([0])
         self._marker_types = ['0']
-        self.positions.append([0, 0, 0])
-        self.quaternions.append([0, 0, 0, 1])
+        self.positions.append(np.array([0, 0, 0]))
+        self.quaternions.append(np.array([0, 0, 0, 1]))
         self.timestamp = time.time()
 
     def pack(self, camera_image, ar_ids, rvecs, tvecs, marker_type):
@@ -53,6 +53,11 @@ class DetectionOutput (object):
             self.positions = np.concatenate((self.positions, detection.positions))
             self._marker_types = np.concatenate((self._marker_types, detection._marker_types))
 
+    def get_single_output(self, index):
+        single_output = SingleOutput()
+        single_output.pack_from_parent(self, index)
+        return single_output
+
 
 class SingleOutput (object):
     def __init__(self):
@@ -63,12 +68,17 @@ class SingleOutput (object):
         self._marker_type = None
 
     def pack_from_parent(self, parent, index):
+        self._parent = parent
         self._camera_image = parent._camera_image
         self._ar_id = parent.ar_ids[index]
         self._position = parent.positions[index]
         self._quaternion = parent.quaternions[index]
         self._timestamp = parent.timestamp
         self._marker_type = parent._marker_types[index]
+
+    @property
+    def parent(self):
+        return self._parent
 
     @property
     def position(self):

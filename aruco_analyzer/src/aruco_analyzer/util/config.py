@@ -19,9 +19,11 @@ class Singleton(object):
 
 class Config(Singleton):
 
-    _max_detection_images = 10
-    _max_analyzer_list = 10
-    _max_detection_age = 1
+    _filter_by_id = False
+    _never_drop_frames = False
+    _max_detection_images = 0
+    _max_analyzer_list = 0
+    _max_detection_age = 0
     _number_of_workers = 1
     _space_fixed_ids = []
 
@@ -38,39 +40,18 @@ class Config(Singleton):
 
     def read_from_dictionary(self, config):
         for key, value in config.items():
-            if key == 'board_config':
-                if value is not None:
-                    for board in value:
-                        try:
-                            if board['type'] == 'cube':
-                                self._board_config.append(
-                                    CubeBoardConfig(
-                                        board['dictionary'], board['marker_length'], board['border'], board['marker_per_side'], board['first_marker']
-                                    )
-                                )
-                            elif board['type'] == 'grid':
-                                self._board_config.append(
-                                    GridBoardConfig(
-                                        board['dictionary'], board['marker_length'], board['x'], board['y'], board['separation'], board['first_marker']
-                                    )
-                                )
-                            elif board['type'] == 'satellite':
-                                self._board_config.append(
-                                    SatelliteBoardConfig(
-                                        board['dictionary'], board['marker_length'], board['border'], board['marker_per_side'], board['first_marker']
-                                    )
-                                )
-                            else:
-                                raise ValueError("Unknown board type \'{}\'".format(board['type']))
-                        except KeyError as keyError:
-                            if keyError.message == 'type':
-                                raise ValueError("Must specify key \'{}\' for board".format(keyError.message))
-                            else:
-                                raise ValueError("Must specify key \'{}\' for board of type \'{}\'".format(keyError.message, board['type']))
-
-            elif key == 'marker_config':
-                if value is not None:
-                    self._marker_config = MarkerConfig(value['dictionary'], value['marker_length'])
+            if key == 'markers':
+                for marker in value:
+                    if marker['type'] == 'marker':
+                        self._marker_config = MarkerConfig(**marker)
+                    elif marker['type'] == 'cube':
+                        self._board_config.append(CubeBoardConfig(**marker))
+                    elif marker['type'] == 'grid':
+                        self._board_config.append(GridBoardConfig(**marker))
+                    elif marker['type'] == 'satellite':
+                        self._board_config.append(SatelliteBoardConfig(**marker))
+                    else:
+                        raise ValueError("Unknown marker type \'{}\'".format(marker['type']))
             elif key == 'cameras':
                 for camera in value:
                     if type(camera) is str:
@@ -84,18 +65,28 @@ class Config(Singleton):
         self.check_valid()
 
     def check_valid(self):
-        if self._marker_config is not None:
-            for board_config in self._board_config:
-                if self._marker_config.dictionary_name == board_config.dictionary_name:
-                    raise ValueError("Dictionaries for single markers and boards cannot be the same!")
+        # if self._marker_config is not None:
+        #     for board_config in self._board_config:
+        #         if self._marker_config.dictionary_name == board_config.dictionary_name:
+        #             raise ValueError("Dictionaries for single markers and boards cannot be the same!")
 
         for a, b in itertools.combinations(self._board_config, 2):
             if a.dictionary_name == b.dictionary_name and not set(a.ids).isdisjoint(b.ids):
                 raise ValueError(
-                    "Markers of two boards overlap!" + '\n'
-                    + "Type: {}, Dictionary: {}, first_marker: {}".format(b.type, b.dictionary_name, b.first_marker) + '\n'
-                    + "Type: {}, Dictionary: {}, first_marker: {}".format(b.type, b.dictionary_name, b.first_marker)
+                    (
+                        "Markers of two boards overlap!\n"
+                        "Type: {}, Dictionary: {}, first_marker: {}\n"
+                        "Type: {}, Dictionary: {}, first_marker: {}"
+                    ).format(a.type, a.dictionary_name, a.first_marker, b.type, b.dictionary_name, b.first_marker)
                 )
+
+    @property
+    def filter_by_id(self):
+        return self._filter_by_id
+
+    @property
+    def never_drop_frames(self):
+        return self._never_drop_frames
 
     @property
     def max_detection_images(self):

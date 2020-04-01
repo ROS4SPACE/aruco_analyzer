@@ -19,7 +19,6 @@ class ArucoDetector(object):
         self.id = type(self).counter
         type(self).counter += 1
 
-        self.name = 'ArUco Detection Class'
         self.image_distributor = image_distributor
 
         self.config = Config()
@@ -32,11 +31,11 @@ class ArucoDetector(object):
         self.font = cv2.FONT_HERSHEY_SIMPLEX
 
     def detect_markers(self, camera_image, dictionary):
-        # check if the markers of the dictionary were already detected in this image
+        # check if the markers of this dictionary were already detected in this image
         try:
             markers = self.detected_markers[dictionary]
             if markers is None:
-                return
+                return None, None
             else:
                 corners, ids = zip(*markers)
         except KeyError:
@@ -98,11 +97,12 @@ class ArucoDetector(object):
                         1, (0, 0, 255), 2, cv2.LINE_AA)
 
         detection = DetectionOutput()
-        detection.pack(camera_image, np.array([board.first_marker]), [rvec], [tvec], [board.type])
+        detection.pack(camera_image, np.array([board.first_marker]), [rvec], [tvec], [board.type_id])
         return detection
 
     def detect_single_markers(self, camera_image):
-        corners, ids, rejected = cv2.aruco.detectMarkers(camera_image.image, self.marker_config.dictionary)
+        # corners, ids, rejected = cv2.aruco.detectMarkers(camera_image.image, self.marker_config.dictionary)
+        corners, ids = self.detect_markers(camera_image, self.marker_config.dictionary)
         base_offset = 30
 
         if ids is None:
@@ -153,11 +153,12 @@ class ArucoDetector(object):
         detection = DetectionOutput()
         detection.pack_dummy(camera_image)
 
-        if self.marker_config is not None:
-            detection.append(self.detect_single_markers(camera_image))
-
+        # detect boards first so that boards are not confused for single markers
         for board_config in self.board_config:
             detection.append(self.detect_board(camera_image, board_config))
+
+        if self.marker_config is not None:
+            detection.append(self.detect_single_markers(camera_image))
 
         return detection
 

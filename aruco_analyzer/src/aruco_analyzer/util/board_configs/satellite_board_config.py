@@ -6,14 +6,8 @@ import cv2
 
 class SatelliteBoardConfig(BoardConfig):
 
-    def __init__(self, dictionary, marker_length, border, marker_per_side, first_marker, ):
-        super(SatelliteBoardConfig, self).__init__(dictionary, marker_length)
-        self._type = 'S'
-        self._border = border
-        self._marker_per_side = marker_per_side
-        self._first_marker = first_marker
-
-        self._ids = [i for i in range(self._first_marker, self._first_marker+3*self._marker_per_side**2)]
+    def __init__(self, **kwargs):
+        super(SatelliteBoardConfig, self).__init__(**kwargs)
 
         corners = []
         front_side_corners = []
@@ -48,6 +42,15 @@ class SatelliteBoardConfig(BoardConfig):
 
         self._board = cv2.aruco.Board_create(points, self._dictionary, ids)
 
+    def _set_variables(self, **kwargs):
+        super(SatelliteBoardConfig, self)._set_variables(**kwargs)
+        self._type_id = 'S'
+        self._border = kwargs['border']
+        self._marker_per_side = kwargs['marker_per_side']
+        self._first_marker = kwargs['first_marker']
+
+        self._ids = [i for i in range(self._first_marker, self._first_marker+3*self._marker_per_side**2)]
+
     @property
     def first_marker(self):
         return self._first_marker
@@ -59,7 +62,3 @@ class SatelliteBoardConfig(BoardConfig):
     @property
     def ids(self):
         return self._ids
-
-    @property
-    def id(self):
-        return '{}{:03d}'.format(self.type, self._first_marker)

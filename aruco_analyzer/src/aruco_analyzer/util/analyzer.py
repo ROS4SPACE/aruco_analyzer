@@ -23,7 +23,7 @@ class Analyzer(object):
 
         self.config = Config()
         self.space_fixed_ids = self.config.space_fixed_ids
-        self.max_list = self.config.max_analyzer_list
+        self.max_analyzer_list = self.config.max_analyzer_list
         self.max_age = self.config.max_detection_age
 
         # holds unprocessed estimations for each marker and each camera
@@ -37,12 +37,18 @@ class Analyzer(object):
 
     def run(self):
         while True:
-            self.filter_by_id(self.image_distributor.get_detection())
+            if self.config.filter_by_id:
+                self.filter_by_id(self.image_distributor.get_detection())
+            else:
+                self.analyzed_targets.put(self.image_distributor.get_detection())
+                self.analyzed_target_available.set()
 
     def filter_by_id(self, detection_output):
         for i in range(0, len(detection_output.ar_ids)):
             single = SingleOutput()
             single.pack_from_parent(detection_output, i)
+
+            # self.logger.warn(str(single._camera_image.timestamp))
 
             identifier = single.unique_ar_id
 
@@ -61,8 +67,8 @@ class Analyzer(object):
             single_detection_list.append(single)
             detection_available.set()
 
-            # remove oldest, i.e. first detection if list gets too big, do not remove when max_list is set to 0
-            if self.max_list != 0 and len(single_detection_list) > self.max_list:
+            # remove oldest, i.e. first detection if list gets too big, do not remove when max_analyzer_list is set to 0
+            if self.max_analyzer_list != 0 and len(single_detection_list) > self.max_analyzer_list:
                 single_detection_list.pop(0)
             # self.lock.release()
 

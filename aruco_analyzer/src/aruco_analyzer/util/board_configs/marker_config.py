@@ -1,21 +1,10 @@
-import cv2
+from .board_config import BaseConfig
 
 
-class MarkerConfig(object):
+class MarkerConfig(BaseConfig):
+    def __init__(self, **kwargs):
+        super(MarkerConfig, self).__init__(**kwargs)
 
-    def __init__(self, dictionary, marker_length):
-        self._dictionary_name = dictionary
-        self._dictionary = cv2.aruco.getPredefinedDictionary(getattr(cv2.aruco, self._dictionary_name))
-        self._marker_length = marker_length
-
-    @property
-    def dictionary_name(self):
-        return self._dictionary_name
-
-    @property
-    def dictionary(self):
-        return self._dictionary
-
-    @property
-    def marker_length(self):
-        return self._marker_length
+    def _set_variables(self, **kwargs):
+        super(MarkerConfig, self)._set_variables(**kwargs)
+        self._type_id = 'M'
