@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import logging
-from threading import Lock, Condition, Event
+from threading import Lock, Event
 try:
     from queue import Queue
 except ImportError:
@@ -49,26 +49,30 @@ class ImageDistributor(object):
 
         self._image_queue.put(camera_image_container)
         self._image_available.set()
-        self.logger.debug('notify')
+        self.logger.debug('image_available set')
 
     # returns image from image queue and stores ID of requesting aruco detector
     def get_image(self, id):
-        self._order_list_lock.acquire()
-        while self._image_queue.empty():
-            self.logger.debug('wait {}'.format(id))
-            self._image_available.wait()
-            self.logger.debug('resume {}'.format(id))
-        self._order_list.append(id)
-        self._order_list_lock.release()
-        return self._image_queue.get()
+        with self._order_list_lock:
+            while self._image_queue.empty():
+                self.logger.debug('image_available wait {}'.format(id))
+                ret = self._image_available.wait(1.0)
+                if not ret:
+                    return None
+                self.logger.debug('image_available resume {}'.format(id))
+            self._order_list.append(id)
+        image = self._image_queue.get()
+        if self._image_queue.empty():
+            self._image_available.clear()
+            self.logger.debug('image_available clear')
+        return image
 
     # puts detection into detection queue
     def put_detection(self, id, detection, detection_image):
         self.logger.debug('enter put_detection {}'.format(id))
-        try:
-            self.logger.debug('acquire lock')
-            self._order_list_lock.acquire()
-            self.logger.debug('lock acquired')
+        self.logger.debug('order_list_lock acquire attempt')
+        with self._order_list_lock:
+            self.logger.debug('order_list_lock acquired')
             # no detection
             if detection is None:
                 self._put_detection(detection, detection_image)
@@ -89,14 +93,14 @@ class ImageDistributor(object):
                     self._reorder_dict[id] = []
                 # use list to allow multiple data from the same ID
                 self._reorder_dict[id].append((detection, detection_image))
-        finally:
-            self._order_list_lock.release()
-            self.logger.debug('release lock')
-            self.logger.debug('return put_detection {}'.format(id))
+        self.logger.debug('order_list_lock released')
+        self.logger.debug('return put_detection {}'.format(id))
 
     # gets detection from detection queue
     def get_detection(self):
-        self._detection_available.wait()
+        ret = self._detection_available.wait(1.0)
+        if not ret:
+            return None
         detection = self._detection_queue.get()
         if self._detection_queue.empty():
             self._detection_available.clear()
@@ -105,21 +109,22 @@ class ImageDistributor(object):
     def _put_detection(self, detection, detection_image):
         if detection is not None:
             if not self.config.never_drop_frames and self._detection_queue.full():
-                self.logger.debug('Detection queue is full! --> Emptying')
+                self.logger.info('Detection queue is full! --> Emptying')
                 for _ in range(self._image_queue.qsize()-1):
                     self._detection_queue.get()
 
             self._detection_queue.put(detection)
             self._detection_available.set()
 
-        if not self.config.never_drop_frames and self._detection_images_qdic[detection_image.camera.name].full():
-            for _ in range(self._detection_images_qdic[detection_image.camera.name].qsize()-1):
-                self._detection_images_qdic[detection_image.camera.name].get()
-        self._detection_images_qdic[detection_image.camera.name].put(detection_image.image)
+        if self.config.publish_detection_images:
+            if not self.config.never_drop_frames and self._detection_images_qdic[detection_image.camera.name].full():
+                for _ in range(self._detection_images_qdic[detection_image.camera.name].qsize()-1):
+                    self._detection_images_qdic[detection_image.camera.name].get()
+            self._detection_images_qdic[detection_image.camera.name].put(detection_image.image)
 
-        # notify detection image listeners
-        if self._detection_image_listener is not None:
-            self._detection_image_listener.notify_detection_image_available()
+            # notify detection image listeners
+            if self._detection_image_listener is not None:
+                self._detection_image_listener.notify_detection_image_available()
 
     # tries to move data from temporary storage into output queues
     def _reorder(self):

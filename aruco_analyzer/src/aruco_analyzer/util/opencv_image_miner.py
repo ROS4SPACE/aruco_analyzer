@@ -4,6 +4,7 @@ import time
 import cv2
 from threading import Thread
 
+from .image_miner import ImageMiner
 from .camera_image import CameraImage
 
 props = [
@@ -20,7 +21,7 @@ props = [
 ]
 
 
-class OpenCVImageMiner(object):
+class OpenCVImageMiner(ImageMiner):
     """
     This class is only used for testing the OpenCV method of capturing video from USB cameras.
     """

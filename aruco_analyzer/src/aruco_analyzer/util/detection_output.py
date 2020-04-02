@@ -58,6 +58,13 @@ class DetectionOutput (object):
         single_output.pack_from_parent(self, index)
         return single_output
 
+    def size(self):
+        return len(self.ar_ids)
+
+    @property
+    def camera_image(self):
+        return self._camera_image
+
 
 class SingleOutput (object):
     def __init__(self):

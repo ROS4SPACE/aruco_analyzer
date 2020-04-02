@@ -6,5 +6,6 @@ from .camera import Camera
 from .camera_image import CameraImage
 from .detection_output import SingleOutput
 from .opencv_image_miner import OpenCVImageMiner
+from .image_miner import ImageMiner
 
-__all__ = ["ArucoDetector", "Analyzer", "ImageDistributor", "Config", "Camera", "CameraImage", "SingleOutput", "OpenCVImageMiner"]
+__all__ = ["ArucoDetector", "Analyzer", "ImageDistributor", "Config", "Camera", "CameraImage", "SingleOutput", "OpenCVImageMiner", "ImageMiner"]

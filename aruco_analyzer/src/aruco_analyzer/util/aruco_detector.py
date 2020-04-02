@@ -1,23 +1,34 @@
 #!/usr/bin/env python
+import logging
 import math
-import numpy as np
+import threading
 from functools import reduce
+
 import cv2
-from .detection_output import DetectionOutput
+import numpy as np
+
 from .config import Config
+from .detection_output import DetectionOutput
 
 
 def partition(l, p):
     return reduce(lambda x, y: x[not p(y)].append(y) or x, l, ([], []))
 
 
-class ArucoDetector(object):
+class ArucoDetector(threading.Thread):
     counter = 0
 
     def __init__(self, image_distributor):
+        super(ArucoDetector, self).__init__()
+        self.daemon = True
+
         # unique id
         self.id = type(self).counter
         type(self).counter += 1
+
+        self.name = '{}-{}'.format(__name__, str(self.id))
+
+        self.logger = logging.getLogger(__name__)
 
         self.image_distributor = image_distributor
 
@@ -29,6 +40,8 @@ class ArucoDetector(object):
         self.detected_markers = {}
 
         self.font = cv2.FONT_HERSHEY_SIMPLEX
+
+        self.running = True
 
     def detect_markers(self, camera_image, dictionary):
         # check if the markers of this dictionary were already detected in this image
@@ -162,11 +175,14 @@ class ArucoDetector(object):
 
         return detection
 
-    def run_detect(self):
-        while True:
+    def run(self):
+        while self.running:
             self.detected_markers.clear()
             image = self.image_distributor.get_image(self.id)
+            if image is None:
+                continue
             detection = self.detect(image)
             if detection.timestamp is None:
                 detection = None
             self.image_distributor.put_detection(self.id, detection, image)
+        self.logger.info("{} end".format(self.name))

@@ -19,26 +19,9 @@ class Singleton(object):
 
 class Config(Singleton):
 
-    _filter_by_id = False
-    _never_drop_frames = False
-    _max_detection_images = 0
-    _max_analyzer_list = 0
-    _max_detection_age = 0
-    _number_of_workers = 1
-    _space_fixed_ids = []
-
-    _marker_config = None
-    _board_config = []
-
-    _cameras = {}
-
-    _print_in_image = False
-    _draw_detected_markers = False
-    _draw_axis = False
-
-    _average_estimations = False
-
     def read_from_dictionary(self, config):
+        self.reset()
+
         for key, value in config.items():
             if key == 'markers':
                 for marker in value:
@@ -79,6 +62,31 @@ class Config(Singleton):
                         "Type: {}, Dictionary: {}, first_marker: {}"
                     ).format(a.type, a.dictionary_name, a.first_marker, b.type, b.dictionary_name, b.first_marker)
                 )
+
+    def reset(self):
+        self._publish_detection_images = False
+        self._filter_by_id = False
+        self._never_drop_frames = False
+        self._max_detection_images = 0
+        self._max_analyzer_list = 0
+        self._max_detection_age = 0
+        self._number_of_workers = 1
+        self._space_fixed_ids = []
+
+        self._marker_config = None
+        self._board_config = []
+
+        self._cameras = {}
+
+        self._print_in_image = False
+        self._draw_detected_markers = False
+        self._draw_axis = False
+
+        self._average_estimations = False
+
+    @property
+    def publish_detection_images(self):
+        return self._publish_detection_images
 
     @property
     def filter_by_id(self):

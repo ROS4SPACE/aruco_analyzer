@@ -5,7 +5,7 @@ try:
     from queue import Queue
 except ImportError:
     from Queue import Queue
-from threading import Thread, Event
+import threading
 import numpy as np
 from pyquaternion import Quaternion
 from .detection_output import SingleOutput
@@ -13,9 +13,13 @@ from .quaternion_helper import averageQuaternions
 from .config import Config
 
 
-class Analyzer(object):
+class Analyzer(threading.Thread):
 
     def __init__(self, image_distributor):
+        super(Analyzer, self).__init__()
+        self.daemon = True
+        self.name = __name__
+
         self.logger = logging.getLogger(__name__)
 
         self.image_distributor = image_distributor
@@ -33,15 +37,24 @@ class Analyzer(object):
         self.analyzing_threads = {}
 
         # self.lock = Lock()
-        self.analyzed_target_available = Event()
+        self.analyzed_target_available = threading.Event()
+
+        self.running = True
+
+    def start(self, broadcaster):
+        super(Analyzer, self).start()
+        self.start_broadcasting(broadcaster)
 
     def run(self):
-        while True:
-            if self.config.filter_by_id:
-                self.filter_by_id(self.image_distributor.get_detection())
-            else:
-                self.analyzed_targets.put(self.image_distributor.get_detection())
-                self.analyzed_target_available.set()
+        while self.running:
+            detection = self.image_distributor.get_detection()
+            if detection:
+                if self.config.filter_by_id:
+                    self.filter_by_id(detection)
+                else:
+                    self.analyzed_targets.put(detection)
+                    self.analyzed_target_available.set()
+        self.logger.info("Analyzer end")
 
     def filter_by_id(self, detection_output):
         for i in range(0, len(detection_output.ar_ids)):
@@ -59,7 +72,7 @@ class Analyzer(object):
 
             camera_name = single.camera_image.camera.name
             if camera_name not in self.marker_detections[identifier]:
-                self.marker_detections[identifier][camera_name] = (list(), Event())
+                self.marker_detections[identifier][camera_name] = (list(), threading.Event())
 
             single_detection_list, detection_available = self.marker_detections[identifier][camera_name]
 
@@ -78,7 +91,7 @@ class Analyzer(object):
                 self.analyzing_threads[identifier].start()
 
     def create_analyzing_thread(self, single_detection_list, detection_available):
-        analyze_thread = Thread(target=self.analyze_single_id, args=[single_detection_list, detection_available])
+        analyze_thread = threading.Thread(target=self.analyze_single_id, args=[single_detection_list, detection_available])
         analyze_thread.daemon = True
         return analyze_thread
 
@@ -132,19 +145,20 @@ class Analyzer(object):
         average_quat = Quaternion(average_quat).normalised.elements
         return [average_pose, average_quat, single_detection_list[-1]]
 
-    def set_broadcaster(self, broadcaster):
-        self.broadcaster = broadcaster
-
     def broadcast(self):
-        while True:
-            self.analyzed_target_available.wait()
+        while self.running:
+            ret = self.analyzed_target_available.wait(1.0)
+            if not ret:
+                continue
             analyzed_target = self.analyzed_targets.get()
             if self.analyzed_targets.empty():
                 self.analyzed_target_available.clear()
             self.broadcaster.broadcast(analyzed_target)
 
-    def start_broadcasting(self):
+    def start_broadcasting(self, broadcaster):
+        self.broadcaster = broadcaster
         if self.broadcaster is not None:
-            self.broadcast_thread = Thread(target=self.broadcast)
+            self.broadcast_thread = threading.Thread(target=self.broadcast)
             self.broadcast_thread.daemon = True
+            self.broadcast_thread.name = 'Broadcaster'
             self.broadcast_thread.start()
