@@ -142,8 +142,8 @@ class ArucoDetector(threading.Thread):
             if self.config.print_in_image:
                 dist = np.linalg.norm(tvec)
 
-                strg = 'ID: {} Distance: {:.3f} m'.format(id, dist*100)
-                strg2 = 'x: {:.3f} y: {:.3f} z: {:.3f}'.format(*tvec*100)
+                strg = 'ID: {} Distance: {:.3f} m'.format(id, dist)
+                strg2 = 'x: {:.3f} y: {:.3f} z: {:.3f}'.format(*tvec)
                 strg3 = 'r: {:.3f} p: {:.3f} y: {:.3f}'.format(*map(math.degrees, rvec))
 
                 text_place = base_offset + id*(30*3+20)
