@@ -7,6 +7,11 @@ from catkin_pkg.python_setup import generate_distutils_setup
 setup_args = generate_distutils_setup(
     packages=['aruco_analyzer'],
     package_dir={'': 'src'},
+    scripts=[
+        'scripts/create_marker.py',
+        'scripts/create_grid.py',
+        'scripts/create_cube.py',
+    ],
     install_requires=[
         'opencv-contrib-python',
         'numpy',

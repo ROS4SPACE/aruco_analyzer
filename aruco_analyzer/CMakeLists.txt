@@ -46,3 +46,20 @@ catkin_package(
    CATKIN_DEPENDS rospy std_msgs geometry_msgs message_runtime
 #  DEPENDS system_lib
 )
+
+#############
+## Install ##
+#############
+
+## Mark executable scripts (Python etc.) for installation
+## in contrast to setup.py, you can choose the destination
+catkin_install_python(PROGRAMS
+  nodes/aruco_detection_node
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+## Mark other files for installation (e.g. launch and bag files, etc.)
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+  FILES_MATCHING PATTERN "*.launch"
+)

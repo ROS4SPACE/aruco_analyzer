@@ -43,21 +43,21 @@ class ArucoDetector(threading.Thread):
 
         self.running = True
 
-    def detect_markers(self, camera_image, dictionary):
+    def detect_markers(self, camera_image, board):
         # check if the markers of this dictionary were already detected in this image
         try:
-            markers = self.detected_markers[dictionary]
-            if markers is None:
+            markers = self.detected_markers[board.dictionary_name]
+            if markers is None or not markers:
                 return None, None
             else:
                 corners, ids = zip(*markers)
         except KeyError:
-            corners, ids, rejected = cv2.aruco.detectMarkers(camera_image.image, dictionary)
+            corners, ids, rejected = cv2.aruco.detectMarkers(camera_image.image, board.dictionary)
 
         return corners, ids
 
     def detect_board(self, camera_image, board):
-        corners, ids = self.detect_markers(camera_image, board.dictionary)
+        corners, ids = self.detect_markers(camera_image, board)
         text_place = 30
 
         if ids is None:
@@ -73,7 +73,8 @@ class ArucoDetector(threading.Thread):
         corners, ids = zip(*markers)
         ids = np.asarray(ids)
 
-        self.detected_markers[board.dictionary] = filtered_markers
+        # set filtered markers to dictionary so that they are not detected twice
+        self.detected_markers[board.dictionary_name] = filtered_markers
 
         # cv2.aruco.drawDetectedMarkers(camera_image.image, corners, ids)
         if self.config.draw_detected_markers:
@@ -115,7 +116,7 @@ class ArucoDetector(threading.Thread):
 
     def detect_single_markers(self, camera_image):
         # corners, ids, rejected = cv2.aruco.detectMarkers(camera_image.image, self.marker_config.dictionary)
-        corners, ids = self.detect_markers(camera_image, self.marker_config.dictionary)
+        corners, ids = self.detect_markers(camera_image, self.marker_config)
         base_offset = 30
 
         if ids is None:
@@ -128,7 +129,7 @@ class ArucoDetector(threading.Thread):
 
         rvecs = rvecs.reshape(-1, 3)
         tvecs = tvecs.reshape(-1, 3)
-        ids = ids.reshape(-1)
+        ids = np.asarray(ids).reshape(-1)
 
         if self.config.draw_detected_markers:
             cv2.aruco.drawDetectedMarkers(camera_image.image, corners, ids)

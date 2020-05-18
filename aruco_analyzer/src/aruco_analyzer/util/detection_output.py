@@ -150,16 +150,20 @@ class SingleOutput (object):
 
     @property
     def camera_image(self):
-
         return self._camera_image
 
     @camera_image.setter
     def camera_image(self, value):
         self._camera_image = value
 
+    def CSVHeader(self):
+        separator = ','
+        out = separator.join(['ID', 'TIMESTAMP', 'X', 'Y', 'Z', 'QW', 'QY', 'QZ', 'QW'])
+        return out
+
     def toCSV(self):
         separator = ','
         pos = separator.join(map(str, self.position.tolist()))
         ori = separator.join(map(str, self.quaternion))
-        out = separator.join([self.unique_ar_id, pos, ori])
+        out = separator.join([self.unique_ar_id, str(self.camera_image.timestamp), pos, ori])
         return out
