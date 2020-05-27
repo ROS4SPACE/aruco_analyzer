@@ -5,7 +5,7 @@ from catkin_pkg.python_setup import generate_distutils_setup
 
 # fetch values from package.xml
 setup_args = generate_distutils_setup(
-    version='1.0',
+    version='1.0.0',
     packages=['aruco_analyzer'],
     package_dir={'': 'src'},
     scripts=[
