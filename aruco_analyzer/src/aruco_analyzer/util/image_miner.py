@@ -1,5 +1,10 @@
 #!/usr/bin/env python
-from abc import ABC, abstractmethod
+try:
+    from abc import ABC as ABC
+except ImportError:
+    from abc import ABCMeta as ABC
+
+from abc import abstractmethod
 from threading import Thread
 
 

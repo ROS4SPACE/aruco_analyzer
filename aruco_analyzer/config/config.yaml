@@ -1,1 +1,32 @@
-../src/aruco_analyzer/config/config.yaml
+---
+    markers:
+      - type: 'marker'
+        dictionary: 'DICT_4X4_50'
+        marker_length: 0.04
+      - type: 'grid'
+        dictionary: 'DICT_4X4_50'
+        x: 1
+        y: 2
+        marker_length: 0.04
+        marker_separation: 0.00165374677
+        first_marker: 12
+      - type: 'grid'
+        dictionary: 'DICT_4X4_50'
+        x: 1
+        y: 2
+        marker_length: 0.04
+        marker_separation: 0.00165374677
+        first_marker: 14
+    
+    never_drop_frames: True
+    filter_by_id: False
+    max_detection_images: 0
+    
+    number_of_workers: 1
+    
+    print_in_image: True
+    draw_detected_markers: True
+    draw_axis: True
+    
+    cameras:
+      - C920
