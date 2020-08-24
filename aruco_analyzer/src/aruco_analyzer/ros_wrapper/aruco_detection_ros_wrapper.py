@@ -15,7 +15,7 @@ class ARMarkerDetectorWrapper (object):
         self.system_monitor_thread = Thread(target=self.system_monitor.run)
         self.system_monitor_thread.daemon = True
         self.system_monitor_thread.start()
-
+        
         config = rospy.get_param('aruco_analyzer/config')
         self.ar_marker_detector = ARMarkerDetector(config)
         self.detection_image_publisher = DetectionImagePublisher(self.ar_marker_detector.image_distributor._detection_images_qdic)

@@ -21,10 +21,8 @@ class ARMarkerDetector(object):
     def set_image_miner(self, image_miner, *miner_args):
         self.image_miner = image_miner(self.image_distributor, self.conf.cameras, *miner_args)
 
-    def set_detection_image_listener(self, detection_image_listener):
-        self.image_distributor.set_detection_image_listener(detection_image_listener)
-
     def launch_detection_workers(self, detection_image_listener=None):
+        self.image_distributor.set_detection_image_listener(detection_image_listener)
         for worker in range(0, self.conf.number_of_workers):
             self.worker.append(ArucoDetector(self.image_distributor))
             self.worker[-1].start()

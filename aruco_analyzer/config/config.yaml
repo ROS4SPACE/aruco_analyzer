@@ -19,8 +19,10 @@
         first_marker: 14
     
     never_drop_frames: True
-    filter_by_id: False
+    filter_by_id: True
     max_detection_images: 0
+
+    publish_detection_images: True
     
     number_of_workers: 1
     
@@ -29,4 +31,5 @@
     draw_axis: True
     
     cameras:
-      - C920
+      - C920:
+          calibration_file: '/home/michael/catkin_ws/src/aruco_analyzer/aruco_analyzer/config/PiCam.yaml'

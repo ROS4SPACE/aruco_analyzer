@@ -10,7 +10,7 @@ import numpy as np
 from pyquaternion import Quaternion
 
 
-class BaseConfig(ABC):
+class BaseConfig(object):
     def __init__(self, **kwargs):
         self._type = kwargs['type']
         try:
@@ -18,7 +18,7 @@ class BaseConfig(ABC):
         except KeyError as keyError:
             raise ValueError("Must specify key \'{}\' in configuration for type \'{}\'".format(keyError.args[0], self._type))
 
-    @abstractmethod
+    # @abstractmethod
     def _set_variables(self, **kwargs):
         self._dictionary_name = kwargs['dictionary']
         self._dictionary = cv2.aruco.getPredefinedDictionary(getattr(cv2.aruco, self._dictionary_name))
@@ -47,7 +47,7 @@ class BaseConfig(ABC):
 
 class BoardConfig(BaseConfig):
 
-    @abstractmethod
+    # @abstractmethod
     def __init__(self, **kwargs):
         super(BoardConfig, self).__init__(**kwargs)
 
