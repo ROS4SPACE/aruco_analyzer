@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import logging
 import sys
 import threading
@@ -9,10 +9,10 @@ try:
 except ImportError:
     from yaml import Loader
 
-from helper_classes.aruco_detector import ArucoDetector
-from helper_classes.analyzer import Analyzer
-from helper_classes.image_distributor import ImageDistributor
-from helper_classes.config import Config
+from .helper_classes.aruco_detector import ArucoDetector
+from .helper_classes.analyzer import Analyzer
+from .helper_classes.image_distributor import ImageDistributor
+from .helper_classes.config import Config
 
 class ARMarkerDetector(object):
     

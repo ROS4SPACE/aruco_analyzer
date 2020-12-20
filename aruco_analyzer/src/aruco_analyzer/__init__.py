@@ -1,1 +1,1 @@
-from aruco_detection import ARMarkerDetector
+from .aruco_detection import ARMarkerDetector

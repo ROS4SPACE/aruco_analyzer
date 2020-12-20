@@ -1,11 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import logging
 from threading import Thread, Lock, Condition, Event
 try: 
     from queue import Queue
 except ImportError:
     from Queue import Queue
-from config import Config
+from .config import Config
     
 class ImageDistributor(object):
 

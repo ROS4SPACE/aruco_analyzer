@@ -26,5 +26,5 @@ class DetectionImagePublisher(object):
                         self.image_publishers[camera].publish(
                             self.bridge.cv2_to_compressed_imgmsg(self.detection_images_qdic[camera].get()))
                     except CvBridgeError as e:
-                        print e
+                        print (e)
             self._detection_image_available.clear()
