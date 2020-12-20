@@ -68,7 +68,7 @@ class ArucoDetector(object):
             cv2.aruco.drawDetectedMarkers(camera_image.image, corners)
 
         retval, rvec, tvec = cv2.aruco.estimatePoseBoard(
-            corners, ids, board.board, camera_image.camera.camera_matrix, camera_image.camera.distortion_coefficients
+            corners, ids, board.board, camera_image.camera.camera_matrix, camera_image.camera.distortion_coefficients, None, None
         )
 
         if retval is 0:
