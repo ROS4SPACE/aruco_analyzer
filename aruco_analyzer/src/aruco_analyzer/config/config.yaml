@@ -1,4 +1,6 @@
 ---
+# to generate markers you can e.g. go here: https://chev.me/arucogen/
+
 # marker_config:
 #   dictionary: 'DICT_6X6_250'
 #   marker_length: 0.2
@@ -6,17 +8,24 @@
 board_config:
   - type: 'cube'
     dictionary: 'DICT_5X5_50'
-    marker_length: 0.0470
-    border: 0.002
+    marker_length: 0.05875
+    border: 0.0025
     marker_per_side: 2
     first_marker: 0
+  - type: 'cube'
+    dictionary: 'DICT_5X5_50'
+    marker_length: 0.1175
+    border: 0.005
+    marker_per_side: 2
+    first_marker: 16
   # - type: 'grid'
-  #   dictionary: 'DICT_6X6_250'
-  #   x: 4
-  #   y: 1
-  #   marker_length: 0.1
-  #   separation: 0.0017
-  #   first_marker: 0
+  #   dictionary: 'DICT_5X5_50'
+  #   x: 2
+  #   y: 2
+  #   marker_length: 0.1175
+  #   separation: 0.005
+  #   first_marker: 8
+  
   # - type: 'grid'
   #   dictionary: 'DICT_6X6_250'
   #   x: 4
@@ -48,7 +57,10 @@ draw_detected_markers: True
 draw_axis: True
 
 cameras:
-  - PiCam
+  - camera_front:
+      frame_id: gazebo_camera3d_front
+  - camera_arm:
+      frame_id: gazebo_camera3d_arm
   # - C920
   # - camFront:
   #     frame_id: camFront_color_optical_frame
