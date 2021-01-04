@@ -64,10 +64,16 @@ class Analyzer(object):
                 single_detection_list.pop(0)
             # self.lock.release()
 
+            # start analyzing thread for each new id and camera
             if identifier not in self.analyzing_threads:
-                # start analyzing thread for each new id
-                self.analyzing_threads[identifier] = self.create_analyzing_thread(single_detection_list, detection_available)
-                self.analyzing_threads[identifier].start()
+                self.analyzing_threads[identifier] = {camera_name: self.create_analyzing_thread(single_detection_list, detection_available)}
+                self.analyzing_threads[identifier][camera_name].start()
+            else:
+                if camera_name not in self.analyzing_threads[identifier]:
+                    cam = {}
+                    cam[camera_name] = self.create_analyzing_thread(single_detection_list, detection_available)
+                    self.analyzing_threads[identifier] = cam
+                    self.analyzing_threads[identifier][camera_name].start()
 
     def create_analyzing_thread(self, single_detection_list, detection_available):
         analyze_thread = Thread(target=self.analyze_single_id, args=[single_detection_list, detection_available])
