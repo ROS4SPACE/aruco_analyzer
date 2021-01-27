@@ -1,6 +1,8 @@
 <launch>
+	<arg name="config" default="config.yaml"/>
+
 	<node name="aruco_analyzer" pkg="aruco_analyzer" type="aruco_detection_node" output="screen" respawn="false" clear_params="true"> 
-		<rosparam command="load" file="$(find aruco_analyzer)/config/config.yaml" param="config"/>
+		<rosparam command="load" file="$(find aruco_analyzer)/config/$(arg config)" param="config"/>
 		<param name="transport_hint" value="/color/image_raw" />
 		<param name="camera_ns" value="/sensors" />
 	</node>

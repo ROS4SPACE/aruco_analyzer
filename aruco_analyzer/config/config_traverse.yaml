@@ -1,0 +1,45 @@
+---
+# to generate markers you can e.g. go here: https://chev.me/arucogen/
+
+board_config:
+  - type: 'cube'
+    dictionary: 'DICT_5X5_50'
+    marker_length: 0.1175
+    border: 0.005
+    marker_per_side: 2
+    first_marker: 0
+  - type: 'cube'
+    dictionary: 'DICT_5X5_50'
+    marker_length: 0.1175
+    border: 0.005
+    marker_per_side: 2
+    first_marker: 16
+  - type: 'cube'
+    dictionary: 'DICT_5X5_50'
+    marker_length: 0.1175
+    border: 0.005
+    marker_per_side: 2
+    first_marker: 32
+  - type: 'cube'
+    dictionary: 'DICT_5X5_100'
+    marker_length: 0.1175
+    border: 0.005
+    marker_per_side: 2
+    first_marker: 48
+  
+average_estimations: True
+max_analyzer_list: 10
+max_detection_age: 1
+max_detection_images: 10
+
+number_of_workers: 1
+
+print_in_image: True
+draw_detected_markers: True
+draw_axis: True
+
+cameras:
+  - camera_front:
+      frame_id: gazebo_camera3d_front
+  - camera_rear:
+      frame_id: gazebo_camera3d_rear
