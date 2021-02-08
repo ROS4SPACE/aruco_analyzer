@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 import rospy
 from threading import Thread
-from aruco_analyzer import ARMarkerDetector
-from detection_image_publisher import DetectionImagePublisher
-from ros_image_miner import ROSImageMiner
-from cpumem import CpuMemMonitor
-from tf_broadcaster import TFBroadCaster
+from ..aruco_detection import ARMarkerDetector
+from .detection_image_publisher import DetectionImagePublisher
+from .ros_image_miner import ROSImageMiner
+from .cpumem import CpuMemMonitor
+from .tf_broadcaster import TFBroadCaster
 
 class ARMarkerDetectorWrapper (object):
     def __init__(self):

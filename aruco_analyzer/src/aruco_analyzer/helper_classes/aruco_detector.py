@@ -67,15 +67,14 @@ class ArucoDetector(object):
         if self.config.draw_detected_markers:
             cv2.aruco.drawDetectedMarkers(camera_image.image, corners)
 
+        rvec = np.zeros(3)
+        tvec = np.zeros(3)
         retval, rvec, tvec = cv2.aruco.estimatePoseBoard(
-            corners, ids, board.board, camera_image.camera.camera_matrix, camera_image.camera.distortion_coefficients
+            corners, ids, board.board, camera_image.camera.camera_matrix, camera_image.camera.distortion_coefficients, rvec, tvec
         )
 
         if retval is 0:
             return None
-
-        rvec = rvec.reshape(-1)
-        tvec = tvec.reshape(-1)
 
         if self.config.draw_axis:
             cv2.aruco.drawAxis(camera_image.image, camera_image.camera.camera_matrix, camera_image.camera.distortion_coefficients, rvec, tvec, board.marker_length)
@@ -84,7 +83,7 @@ class ArucoDetector(object):
             dist = np.linalg.norm(tvec)
 
             strg = 'ID {} distance: {:.3f}m'.format(board.id, dist)
-            strg2 = 'x: {:.3f} y: {:.3f} z: {:.3f}'.format(*tvec)
+            strg2 = 'x: {:.3f} y: {:.3f} z: {:.3f}'.format(tvec[0], tvec[1], tvec[2])
             strg3 = 'r: {:.3f} p: {:.3f} y: {:.3f}'.format(*map(math.degrees, rvec))
 
             cv2.putText(camera_image.image, strg, (0, text_place), self.font,
@@ -95,7 +94,7 @@ class ArucoDetector(object):
             text_place += 30
             cv2.putText(camera_image.image, strg3, (0, text_place), self.font,
                         1, (0, 0, 255), 2, cv2.LINE_AA)
-        
+
         output = DetectionOutput()
         output.pack(camera_image, np.array([board.first_marker]), [rvec], [tvec], [board.type])
         return output
