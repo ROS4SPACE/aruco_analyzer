@@ -206,6 +206,10 @@ class GridBoardConfig(BoardConfig):
     def id(self):
         return '{}{:03d}'.format(self.type, self._first_marker)
 
+    @property
+    def marker_separation(self):
+        return self._marker_separation
+
 class CubeBoardConfig(BoardConfig):
 
     def __init__(self, dictionary, marker_length, border, marker_per_side, first_marker, ):
