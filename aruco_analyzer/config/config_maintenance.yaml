@@ -24,8 +24,8 @@ board_config:
     dictionary: 'DICT_5X5_50'
     x: 2
     y: 2
-    marker_length: 0.035
-    separation: 0.0015
+    marker_length: 0.07
+    separation: 0.003
     first_marker: 40
 
 average_estimations: True
